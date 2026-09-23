@@ -1,0 +1,25 @@
+{
+  "name": "@modera-plugin/default-agent",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Default Agent runtime, independently delivered through the versioned runtime service.",
+  "files": [
+    "plugin.json",
+    "dist",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "modera-plugin-build ."
+  },
+  "dependencies": {
+    "@modera/contracts": "0.1.0"
+  },
+  "devDependencies": {
+    "@modera/plugin-build": "0.1.0",
+    "@modera/plugin-sdk": "0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

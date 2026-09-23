@@ -1,0 +1,22 @@
+{
+  "apiVersion": 1,
+  "id": "modera.default-agent",
+  "name": "Default Agent",
+  "version": "0.1.0",
+  "description": "Default conversation, context management and tool orchestration runtime.",
+  "locales": {
+    "zh-CN": {
+      "name": "Agent 运行时",
+      "description": "默认会话、上下文管理与工具编排运行时。"
+    }
+  },
+  "main": "dist/index.cjs",
+  "permissions": [],
+  "provides": {
+    "modera.default-agent.runtime": {
+      "contract": "modera.agent.runtime",
+      "apiVersion": 1,
+      "transport": "reference"
+    }
+  }
+}
