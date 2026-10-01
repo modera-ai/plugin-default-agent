@@ -1,5 +1,6 @@
 {
   "apiVersion": 1,
+  "activationScope": "global",
   "id": "modera.default-agent",
   "name": "Default Agent",
   "version": "0.1.0",

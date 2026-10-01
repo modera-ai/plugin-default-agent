@@ -25,7 +25,7 @@ const definitions: ToolDefinition[] = [
 }));
 const call = (name: string) => ({ name, input: {}, id: name });
 
-it("respects mutation, interaction and approval-group barriers and bounds batches", () => {
+it("respects mutation and interaction barriers and bounds batches", () => {
   const names = [
     "read",
     "read",
@@ -51,6 +51,12 @@ it("respects mutation, interaction and approval-group barriers and bounds batche
     ["unknown"],
     ["read"],
   ]);
+});
+
+it("allows independent reads with approval groups to share a batch", () => {
+  expect(toolBatches([call("read"), call("group"), call("group")], definitions)
+    .map(batch => batch.map(call => call.name)))
+    .toEqual([["read", "group", "group"]]);
 });
 
 it("starts independent work together and emits completion order with original indices", async () => {
@@ -100,7 +106,7 @@ it("runs reads concurrently but persists complete results in call order", async 
     release = resolve;
   });
   registry.register("test", {
-    definition: definitions[0]!,
+    definition: { ...definitions[0]!, approvalGroup: "read-access" },
     async execute(input) {
       started++;
       if (started === 2) release();

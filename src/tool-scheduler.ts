@@ -19,7 +19,6 @@ export function toolBatches(
     const definition = byId.get(call.name);
     if (
       definition?.concurrency === "independent-read" &&
-      !definition.approvalGroup &&
       definition.executionKind !== "interaction"
     ) {
       reads.push(call);
