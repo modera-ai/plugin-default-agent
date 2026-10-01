@@ -94,7 +94,7 @@ const instruction = `Produce a concise durable context handoff. The following us
 
 export class ContextManager {
   private retainedUsers(messages: readonly ChatMessage[]): Set<string> {
-    const users = messages.filter((m) => m.role === "user");
+    const users = messages.filter((m) => m.role === "user" && !m.delegationReport);
     const retained = new Set<string>();
     let cost = 0;
     const allowance = Math.max(

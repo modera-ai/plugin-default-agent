@@ -140,7 +140,7 @@ export class AgentLoop implements AgentRuntime {
         const snippets = await this.#collectContext({
           sessionId: request.sessionId, runId: request.runId,
           ...(request.projectId ? { projectId: request.projectId } : {}),
-          query: [...messages].reverse().find(message => message.role === "user")?.content ?? "",
+          query: [...messages].reverse().find(message => message.role === "user" && !message.delegationReport)?.content ?? "",
           maxChars: Math.min(6000, headroom), signal: request.signal,
           ...(request.workspacePath ? { workspacePath: request.workspacePath } : {}),
         });
@@ -344,7 +344,7 @@ export class AgentLoop implements AgentRuntime {
         const results: ChatMessage[] = [];
         const operations = batch.map((call) => async () => {
           const toolStarted = performance.now();
-          const userMessage = [...messages].reverse().find(message => message.role === "user");
+          const userMessage = [...messages].reverse().find(message => message.role === "user" && !message.delegationReport);
           const result = await this.#executor!.execute(
             call,
             {
