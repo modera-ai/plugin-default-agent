@@ -10,6 +10,13 @@ const userMessage: ChatMessage = {
 };
 
 describe("withSystemPolicy", () => {
+  it("exposes image attachment IDs for authorized edits without mutating stored input", () => {
+    const message: ChatMessage = { ...userMessage, attachments: [{ id: "image-id", name: "reference.png", mimeType: "image/png", size: 10 }] };
+    const result = withSystemPolicy([message]);
+    expect(result[1]?.content).toContain("attachment:<id>");
+    expect(result[1]?.content).toContain('"id":"image-id"');
+    expect(message.content).toBe(userMessage.content);
+  });
   it("prepends the stable agent contract without mutating history", () => {
     const messages = [userMessage];
     const result = withSystemPolicy(messages);
