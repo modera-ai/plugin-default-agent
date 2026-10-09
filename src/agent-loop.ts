@@ -16,7 +16,8 @@ import type {
 } from "@modera/contracts";
 import { randomUUID } from "node:crypto";
 import type { ToolCall } from "@modera/contracts";
-import { withSystemPolicy } from "./system-prompt";
+import { withSystemPolicy, BASE_SYSTEM_POLICY } from "./system-prompt";
+import { serializePromptDocument, type PromptDocumentBlock } from "@modera/contracts";
 import { RecoveryBudget } from "./recovery-budget";
 
 import type {
@@ -34,6 +35,7 @@ export type AgentLoopDependencies = AgentRuntimeDependencies;
 export class AgentLoop implements AgentRuntime {
   readonly #collectContext: AgentLoopDependencies["collectContext"];
   readonly #collectPromptSections: AgentLoopDependencies["collectPromptSections"];
+  readonly #transformPromptDocument: AgentLoopDependencies["transformPromptDocument"];
   readonly #waitForResume: AgentLoopDependencies["waitForResume"];
   readonly #model: ModelAdapter;
   readonly #takeInput: AgentLoopDependencies["takeInput"];
@@ -45,6 +47,7 @@ export class AgentLoop implements AgentRuntime {
   constructor(dependencies: AgentLoopDependencies) {
     this.#collectContext = dependencies.collectContext;
     this.#collectPromptSections = dependencies.collectPromptSections;
+    this.#transformPromptDocument = dependencies.transformPromptDocument;
     this.#waitForResume = dependencies.waitForResume;
     this.#takeInput = dependencies.takeInput;
     this.#context = dependencies.context;
@@ -100,10 +103,50 @@ export class AgentLoop implements AgentRuntime {
             signal: request.signal,
           })
         : [];
+      const guidance = this.#executor?.guidance(request) ?? [];
+      const guidanceSources: readonly {
+        owner: string;
+        text: string;
+        id?: string;
+      }[] =
+        this.#executor?.guidanceSources?.(request) ??
+        guidance.map((text, index) => ({
+          owner: "runtime",
+          id: `guidance:${index}`,
+          text,
+        }));
+      const policyBlocks: PromptDocumentBlock[] = [
+        {
+          owner: "modera.default-agent",
+          id: "system-policy",
+          kind: "base",
+          text: BASE_SYSTEM_POLICY,
+        },
+        ...guidanceSources.map((item) => ({
+          owner: item.owner,
+          id: item.id ?? "agentGuidance",
+          kind: "guidance" as const,
+          source: "plugin.json",
+          text: item.text,
+        })),
+        ...promptSections.map((item) => ({
+          ...item,
+          kind:
+            item.owner === "host" ? ("runtime" as const) : ("project" as const),
+        })),
+      ];
+      const transformed = await this.#transformPromptDocument?.(
+        policyBlocks,
+        request,
+      );
+      const composed = transformed
+        ? serializePromptDocument(transformed)
+        : undefined;
       const requestMessages = withSystemPolicy(
         messages,
-        this.#executor?.guidance(request) ?? [],
+        guidance,
         promptSections,
+        composed,
       );
       if (
         context.needsCompaction({

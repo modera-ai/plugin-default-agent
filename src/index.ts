@@ -4,8 +4,10 @@ import {
   type PluginModule,
 } from "@modera/contracts";
 import { AgentLoop } from "./agent-loop";
+import { BASE_SYSTEM_POLICY } from "./system-prompt";
 
 export const activate: PluginModule["activate"] = async () => ({
+  promptPolicy: { id: "system-policy", text: BASE_SYSTEM_POLICY },
   services: {
     "modera.default-agent.runtime": {
       ...AGENT_RUNTIME_CONTRACT,
