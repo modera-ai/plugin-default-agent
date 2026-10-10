@@ -9,14 +9,16 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "modera-plugin-build ."
+    "build": "modera-plugin-build .",
+    "pack": "modera-plugin pack .",
+    "release": "modera-plugin release . --publish"
   },
   "dependencies": {
-    "@modera/contracts": "0.1.0"
+    "@modera/contracts": "file:vendor/modera-contracts-0.1.0.tgz"
   },
   "devDependencies": {
-    "@modera/plugin-build": "0.1.0",
-    "@modera/plugin-sdk": "0.1.0"
+    "@modera/plugin-build": "file:vendor/modera-plugin-build-0.1.0.tgz",
+    "@modera/plugin-sdk": "file:vendor/modera-plugin-sdk-0.1.0.tgz"
   },
   "publishConfig": {
     "access": "public"
