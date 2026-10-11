@@ -10,6 +10,14 @@ const userMessage: ChatMessage = {
 };
 
 describe("withSystemPolicy", () => {
+  it("guides readable web links while preserving URLs and explicit format requests", () => {
+    const content = withSystemPolicy([userMessage])[0]?.content ?? "";
+    expect(content).toContain("[网页或站点名称](完整网址)");
+    expect(content).toContain("没有可靠名称时保留原始网址");
+    expect(content).toContain("完整路径、查询参数和片段");
+    expect(content).toContain("不要手动添加 favicon");
+    expect(content).toContain("用户要求原始网址、纯文本、代码或特定格式时遵循用户要求");
+  });
   it("exposes image attachment IDs for authorized edits without mutating stored input", () => {
     const message: ChatMessage = { ...userMessage, attachments: [{ id: "image-id", name: "reference.png", mimeType: "image/png", size: 10 }] };
     const result = withSystemPolicy([message]);
