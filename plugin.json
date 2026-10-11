@@ -19,5 +19,6 @@
       "apiVersion": 1,
       "transport": "reference"
     }
-  }
+  },
+  "contributions": ["promptPolicy", "services"]
 }
