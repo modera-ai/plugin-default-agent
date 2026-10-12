@@ -1,6 +1,6 @@
 {
   "name": "@modera-plugin/default-agent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Default Agent runtime, independently delivered through the versioned runtime service.",
   "files": [

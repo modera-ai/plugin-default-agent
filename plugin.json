@@ -3,7 +3,7 @@
   "activationScope": "global",
   "id": "modera.default-agent",
   "name": "Default Agent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Default conversation, context management and tool orchestration runtime.",
   "locales": {
     "zh-CN": {
