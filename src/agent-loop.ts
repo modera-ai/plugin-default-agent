@@ -91,7 +91,6 @@ export class AgentLoop implements AgentRuntime {
         messages.push(...queued);
         yield { type: "messages", messages: queued };
       }
-      const tools = this.#executor?.definitions(request) ?? request.tools;
       const promptSections = this.#collectPromptSections
         ? await this.#collectPromptSections({
             sessionId: request.sessionId,
@@ -103,6 +102,8 @@ export class AgentLoop implements AgentRuntime {
             signal: request.signal,
           })
         : [];
+      // Host preparation refreshes CLI-installed skills before taking the tool snapshot.
+      const tools = this.#executor?.definitions(request) ?? request.tools;
       const guidance = this.#executor?.guidance(request) ?? [];
       const guidanceSources: readonly {
         owner: string;
