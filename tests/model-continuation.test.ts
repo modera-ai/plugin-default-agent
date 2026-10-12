@@ -11,6 +11,46 @@ const request = {
   signal: new AbortController().signal,
 };
 
+it.each(["", "Preparing the requested question. "])(
+  "regenerates partial tool arguments with prefix %j and sums usage",
+  async (prefix) => {
+    let attempts = 0;
+    const events: ModelStreamEvent[] = [];
+    const adapter: ModelAdapter = {
+      async *stream(input) {
+        if (!attempts++) {
+          if (prefix) yield { type: "text-delta", text: prefix };
+          throw new ModelStreamInterruptedError("tool-arguments-partial", "invalid JSON", { inputTokens: 10, outputTokens: 3 });
+        }
+        expect(input.messages.at(-1)?.content).toContain("Regenerate the intended tool call");
+        expect(input.messages.filter(message => message.role === "assistant" && !message.content)).toHaveLength(0);
+        if (prefix) yield { type: "text-delta", text: prefix };
+        yield { type: "tool-call", id: "question", name: "ask_user_question", input: { questions: [{ title: "Question" }] } };
+        yield { type: "completed", usage: { inputTokens: 20, outputTokens: 4 } };
+      },
+    };
+    for await (const event of new ContinuingModel(adapter).stream(request)) events.push(event);
+    expect(attempts).toBe(2);
+    expect(events.filter(event => event.type === "tool-call")).toHaveLength(1);
+    expect(events.filter(event => event.type === "text-delta").map(event => event.text).join("")).toBe(prefix);
+    expect(events.at(-1)).toMatchObject({ type: "completed", usage: { inputTokens: 30, outputTokens: 7 } });
+  },
+);
+
+it("does not regenerate partial tool arguments when shared recovery is exhausted", async () => {
+  let attempts = 0;
+  const adapter: ModelAdapter = {
+    async *stream() {
+      attempts++;
+      throw new ModelStreamInterruptedError("tool-arguments-partial", "invalid JSON");
+    },
+  };
+  await expect((async () => {
+    for await (const _ of new ContinuingModel(adapter).stream({ ...request, recovery: new RecoveryBudget(0) })) { /* drain */ }
+  })()).rejects.toMatchObject({ state: "tool-arguments-partial" });
+  expect(attempts).toBe(1);
+});
+
 it("continues from the prefix, removes an exact repeated prefix and sums usage", async () => {
   const prefix = "This is the already visible response prefix. ";
   let calls = 0;
@@ -135,7 +175,6 @@ it("continues a text-only stream interruption and includes failed-call usage", a
 it.each([
   "stream-empty",
   "thinking-only",
-  "tool-arguments-partial",
   "tool-calls-complete",
 ] as const)("does not continue unsafe interrupted state %s", async (state) => {
   let calls = 0;

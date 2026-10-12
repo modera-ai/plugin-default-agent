@@ -5,10 +5,13 @@ import type {
   ModelRequest,
   ModelStreamEvent,
 } from "./agent-loop";
-import { ModelLimitError, ModelStreamInterruptedError } from "@modera/contracts";
+import {
+  ModelLimitError,
+  ModelStreamInterruptedError,
+} from "@modera/contracts";
 import { addUsage } from "./token-usage";
 
-/** Recover only provider-confirmed text truncation; partial tool arguments never qualify. */
+/** Continue text or regenerate incomplete tool calls before any complete call is emitted. */
 export class ContinuingModel implements ModelAdapter {
   constructor(
     private readonly model: ModelAdapter,
@@ -20,6 +23,7 @@ export class ContinuingModel implements ModelAdapter {
     let text = "";
     let previousUsage: TokenUsage | undefined;
     let known = true;
+    let regenerateTool = false;
     for (let attempt = 0; ; attempt++) {
       request.signal.throwIfAborted();
       const prefix = text;
@@ -55,17 +59,22 @@ export class ContinuingModel implements ModelAdapter {
       const messages: readonly ChatMessage[] = attempt
         ? [
             ...request.messages,
-            {
-              id: `continuation-prefix-${attempt}`,
-              role: "assistant",
-              content: prefix,
-              createdAt: new Date(0).toISOString(),
-            },
+            ...(prefix
+              ? [
+                  {
+                    id: `continuation-prefix-${attempt}`,
+                    role: "assistant" as const,
+                    content: prefix,
+                    createdAt: new Date(0).toISOString(),
+                  },
+                ]
+              : []),
             {
               id: `continuation-request-${attempt}`,
               role: "user",
-              content:
-                "The previous response hit its output limit. Continue exactly where it ended. Do not repeat any preceding text or redo completed actions. Complete the original task, respecting all original constraints.",
+              content: regenerateTool
+                ? "The previous tool call could not be parsed because its JSON arguments were incomplete or invalid. No tool from that response was executed. Regenerate the intended tool call with complete, valid JSON arguments matching its schema. Do not continue or splice the partial JSON. Do not repeat preceding text or redo previously completed actions. Respect all original task constraints."
+                : "The previous response hit its output limit. Continue exactly where it ended. Do not repeat any preceding text or redo completed actions. Complete the original task, respecting all original constraints.",
               createdAt: new Date(0).toISOString(),
             },
           ]
@@ -118,6 +127,9 @@ export class ContinuingModel implements ModelAdapter {
         const interruptedText =
           error instanceof ModelStreamInterruptedError &&
           error.state === "text-partial";
+        const incompleteTool =
+          error instanceof ModelStreamInterruptedError &&
+          error.state === "tool-arguments-partial";
         const interruptedUsage =
           error instanceof ModelLimitError
             ? error.recovery?.usage
@@ -135,15 +147,15 @@ export class ContinuingModel implements ModelAdapter {
               : withoutUsage(error)
             : error;
         if (
-          (!outputLimit && !interruptedText) ||
+          (!outputLimit && !interruptedText && !incompleteTool) ||
           toolSeen ||
-          !text ||
-          text === prefix ||
+          (!incompleteTool && (!text || text === prefix)) ||
           text.length > 64_000 ||
           attempt >= this.maxContinuations ||
           (request.recovery && !request.recovery.tryConsume("continuation"))
         )
           throw terminalError;
+        regenerateTool = incompleteTool;
       }
     }
   }
