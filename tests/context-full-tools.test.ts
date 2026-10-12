@@ -1,13 +1,14 @@
 import { expect, it } from "vitest";
 import { readPluginManifest } from "@modera/plugin-host/testing";
 import { resolve } from "node:path";
-const pluginManifest = (id: string) => readPluginManifest(resolve("plugins", id));
+import { fileURLToPath } from "node:url";
+const pluginManifest = (id: string) => readPluginManifest(resolve(process.env.MODERA_PLUGINS_DIR ?? fileURLToPath(new URL("../../", import.meta.url)), `plugin-${id}`));
 
 // A plugin's manifest lives in its `plugin.json`, not in its source: the host
 // reads it before any code runs, so a test must do the same.
 const browser = pluginManifest("browser");
 const websearch = pluginManifest("websearch");
-const workspace = pluginManifest("workspace");
+const workspace = pluginManifest("filesystem");
 const search = pluginManifest("search");
 const terminal = pluginManifest("terminal");
 const todo = pluginManifest("todo");
@@ -47,7 +48,7 @@ it.each([true, false])(
       thinking: "检查布局和交互。".repeat(8500),
       toolCalls: [0, 1, 2].map((i) => ({
         id: `c${i}`,
-        name: "workspace_create",
+        name: "filesystem_create",
         input: {
           path: `src/view${i}.tsx`,
           content: "const view = 'board';\n".repeat(400),
@@ -72,7 +73,7 @@ it.each([true, false])(
       async *stream(input) {
         summaries++;
         expect(estimateContext(input.messages)).toBeLessThanOrEqual(24000);
-        expect(input.messages[1]!.content).toContain("workspace_create");
+        expect(input.messages[1]!.content).toContain("filesystem_create");
         yield {
           type: "text-delta",
           text: "已创建三个看板文件；下一步运行构建检查，尚未验证成功。",
@@ -107,7 +108,7 @@ it("continues a short task with every built-in tool and Chinese reasoning", asyn
     message("u", "user", "创建一个todo应用，使用 React + Vite + TypeScript"),
   ];
   for (const [i, name] of [
-    "workspace_read",
+    "filesystem_read",
     "search_files",
     "interaction_ask",
     "todo_manage",
