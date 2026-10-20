@@ -45,15 +45,15 @@ describe("withSystemPolicy", () => {
   it("appends only enabled capability guidance after the stable policy", () => {
     const result = withSystemPolicy(
       [userMessage],
-      ["先读取相关文件。", "使用终端执行测试。"],
+      [{ owner: "example", id: "read", source: "Read", text: "先读取相关文件。" }, { owner: "example", id: "test", text: "使用终端执行测试。" }],
     );
     const content = result[0]?.content ?? "";
 
     expect(content).toContain(
-      "当前启用能力的使用指导：\n- 先读取相关文件。\n- 使用终端执行测试。",
+      "先读取相关文件。",
     );
     expect(content.indexOf("## 审批与拒绝")).toBeLessThan(
-      content.indexOf("当前启用能力的使用指导"),
+      content.indexOf("补充提示词"),
     );
   });
 });

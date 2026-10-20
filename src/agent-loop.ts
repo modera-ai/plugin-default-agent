@@ -93,6 +93,7 @@ export class AgentLoop implements AgentRuntime {
       }
       const promptSections = this.#collectPromptSections
         ? await this.#collectPromptSections({
+            availableToolIds: (this.#executor?.definitions(request) ?? request.tools).map(tool => tool.id),
             sessionId: request.sessionId,
             runId: request.runId,
             ...(request.projectId ? { projectId: request.projectId } : {}),
@@ -104,18 +105,6 @@ export class AgentLoop implements AgentRuntime {
         : [];
       // Host preparation refreshes CLI-installed skills before taking the tool snapshot.
       const tools = this.#executor?.definitions(request) ?? request.tools;
-      const guidance = this.#executor?.guidance(request) ?? [];
-      const guidanceSources: readonly {
-        owner: string;
-        text: string;
-        id?: string;
-      }[] =
-        this.#executor?.guidanceSources?.(request) ??
-        guidance.map((text, index) => ({
-          owner: "runtime",
-          id: `guidance:${index}`,
-          text,
-        }));
       const policyBlocks: PromptDocumentBlock[] = [
         {
           owner: "modera.default-agent",
@@ -123,17 +112,10 @@ export class AgentLoop implements AgentRuntime {
           kind: "base",
           text: BASE_SYSTEM_POLICY,
         },
-        ...guidanceSources.map((item) => ({
-          owner: item.owner,
-          id: item.id ?? "agentGuidance",
-          kind: "guidance" as const,
-          source: "plugin.json",
-          text: item.text,
-        })),
         ...promptSections.map((item) => ({
           ...item,
           kind:
-            item.owner === "host" ? ("runtime" as const) : ("project" as const),
+            item.owner === "host" ? ("runtime" as const) : ("guidance" as const),
         })),
       ];
       const transformed = await this.#transformPromptDocument?.(
@@ -145,7 +127,6 @@ export class AgentLoop implements AgentRuntime {
         : undefined;
       const requestMessages = withSystemPolicy(
         messages,
-        guidance,
         promptSections,
         composed,
       );

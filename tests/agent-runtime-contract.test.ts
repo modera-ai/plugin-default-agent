@@ -36,9 +36,7 @@ function fixture() {
         inputSchema: {},
         requiredPermissions: [],
       },
-    ],
-    guidance: () => [],
-    title: () => "Probe",
+    ],    title: () => "Probe",
     execute,
     completedCall: () => ({
       images: [{ mimeType: "image/png", data: "YWJj" }],
