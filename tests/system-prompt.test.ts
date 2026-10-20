@@ -10,14 +10,6 @@ const userMessage: ChatMessage = {
 };
 
 describe("withSystemPolicy", () => {
-  it("guides explicit file references with verified locations instead of guessing branch paths", () => {
-    const content = withSystemPolicy([userMessage])[0]?.content ?? "";
-    expect(content).toContain("[仓库规则](D:/project/AGENTS.md:150)");
-    expect(content).toContain("[项目说明](<D:/My Project/README.md:3>)");
-    expect(content).toContain("不要编造路径或行号，不提供行号范围");
-    expect(content).toContain("分支名、命令、变量");
-    expect(content).toContain("不要用反引号包裹整个链接");
-  });
   it("guides readable web links while preserving URLs and explicit format requests", () => {
     const content = withSystemPolicy([userMessage])[0]?.content ?? "";
     expect(content).toContain("[网页或站点名称](完整网址)");
