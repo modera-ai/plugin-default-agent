@@ -1,5 +1,5 @@
-import type { RecoveryBudgetPort, RecoveryKind } from "@modera/contracts";
-export type { RecoveryKind } from "@modera/contracts";
+import type { RecoveryBudgetPort, RecoveryKind } from "@pal/contracts";
+export type { RecoveryKind } from "@pal/contracts";
 
 /** Shared across recovery layers until a model round completes successfully. */
 export class RecoveryBudget implements RecoveryBudgetPort {

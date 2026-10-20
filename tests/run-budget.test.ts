@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { AgentLoop } from "../src/agent-loop";
 import { ToolExecutor, ToolRegistry } from "@modera/agent-host";
-import type { RunId, SessionId } from "@modera/contracts";
+import type { RunId, SessionId } from "@pal/contracts";
 
 it("counts missing provider usage conservatively rather than permitting unlimited rounds", async () => {
   const registry = new ToolRegistry();
@@ -53,20 +53,40 @@ it("completes more than 80 productive rounds without replaying tools", async () 
   const registry = new ToolRegistry();
   let executed = 0;
   registry.register("fixture", {
-    definition: { id: "advance", title: "Advance", description: "", inputSchema: {}, requiredPermissions: [] },
+    definition: {
+      id: "advance",
+      title: "Advance",
+      description: "",
+      inputSchema: {},
+      requiredPermissions: [],
+    },
     execute: async () => String(++executed),
   });
   let rounds = 0;
   const loop = new AgentLoop({
     executor: new ToolExecutor(registry, async () => true),
-    model: { async *stream() {
-      if (++rounds <= 85) yield { type: "tool-call", id: String(rounds), name: "advance", input: {} };
-      else yield { type: "text-delta", text: "Done" };
-      yield { type: "completed" };
-    } },
+    model: {
+      async *stream() {
+        if (++rounds <= 85)
+          yield {
+            type: "tool-call",
+            id: String(rounds),
+            name: "advance",
+            input: {},
+          };
+        else yield { type: "text-delta", text: "Done" };
+        yield { type: "completed" };
+      },
+    },
   });
-  for await (const _ of loop.run({ sessionId: "s" as SessionId, runId: "r" as RunId,
-    signal: new AbortController().signal, tools: [], messages: [] })) {}
+  for await (const _ of loop.run({
+    sessionId: "s" as SessionId,
+    runId: "r" as RunId,
+    signal: new AbortController().signal,
+    tools: [],
+    messages: [],
+  })) {
+  }
   expect(rounds).toBe(86);
   expect(executed).toBe(85);
 });

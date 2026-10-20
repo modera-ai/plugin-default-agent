@@ -1,8 +1,13 @@
 import { expect, it } from "vitest";
 import { ContinuingModel } from "../src/model-continuation";
-import { ModelLimitError, ModelStreamInterruptedError, type ModelAdapter, type ModelStreamEvent } from "@modera/contracts";
+import {
+  ModelLimitError,
+  ModelStreamInterruptedError,
+  type ModelAdapter,
+  type ModelStreamEvent,
+} from "@pal/contracts";
 import { RecoveryBudget } from "../src/recovery-budget";
-import type { RunId, SessionId } from "@modera/contracts";
+import type { RunId, SessionId } from "@pal/contracts";
 const request = {
   sessionId: "s" as SessionId,
   runId: "r" as RunId,
@@ -20,20 +25,49 @@ it.each(["", "Preparing the requested question. "])(
       async *stream(input) {
         if (!attempts++) {
           if (prefix) yield { type: "text-delta", text: prefix };
-          throw new ModelStreamInterruptedError("tool-arguments-partial", "invalid JSON", { inputTokens: 10, outputTokens: 3 });
+          throw new ModelStreamInterruptedError(
+            "tool-arguments-partial",
+            "invalid JSON",
+            { inputTokens: 10, outputTokens: 3 },
+          );
         }
-        expect(input.messages.at(-1)?.content).toContain("Regenerate the intended tool call");
-        expect(input.messages.filter(message => message.role === "assistant" && !message.content)).toHaveLength(0);
+        expect(input.messages.at(-1)?.content).toContain(
+          "Regenerate the intended tool call",
+        );
+        expect(
+          input.messages.filter(
+            (message) => message.role === "assistant" && !message.content,
+          ),
+        ).toHaveLength(0);
         if (prefix) yield { type: "text-delta", text: prefix };
-        yield { type: "tool-call", id: "question", name: "ask_user_question", input: { questions: [{ title: "Question" }] } };
-        yield { type: "completed", usage: { inputTokens: 20, outputTokens: 4 } };
+        yield {
+          type: "tool-call",
+          id: "question",
+          name: "ask_user_question",
+          input: { questions: [{ title: "Question" }] },
+        };
+        yield {
+          type: "completed",
+          usage: { inputTokens: 20, outputTokens: 4 },
+        };
       },
     };
-    for await (const event of new ContinuingModel(adapter).stream(request)) events.push(event);
+    for await (const event of new ContinuingModel(adapter).stream(request))
+      events.push(event);
     expect(attempts).toBe(2);
-    expect(events.filter(event => event.type === "tool-call")).toHaveLength(1);
-    expect(events.filter(event => event.type === "text-delta").map(event => event.text).join("")).toBe(prefix);
-    expect(events.at(-1)).toMatchObject({ type: "completed", usage: { inputTokens: 30, outputTokens: 7 } });
+    expect(events.filter((event) => event.type === "tool-call")).toHaveLength(
+      1,
+    );
+    expect(
+      events
+        .filter((event) => event.type === "text-delta")
+        .map((event) => event.text)
+        .join(""),
+    ).toBe(prefix);
+    expect(events.at(-1)).toMatchObject({
+      type: "completed",
+      usage: { inputTokens: 30, outputTokens: 7 },
+    });
   },
 );
 
@@ -42,12 +76,22 @@ it("does not regenerate partial tool arguments when shared recovery is exhausted
   const adapter: ModelAdapter = {
     async *stream() {
       attempts++;
-      throw new ModelStreamInterruptedError("tool-arguments-partial", "invalid JSON");
+      throw new ModelStreamInterruptedError(
+        "tool-arguments-partial",
+        "invalid JSON",
+      );
     },
   };
-  await expect((async () => {
-    for await (const _ of new ContinuingModel(adapter).stream({ ...request, recovery: new RecoveryBudget(0) })) { /* drain */ }
-  })()).rejects.toMatchObject({ state: "tool-arguments-partial" });
+  await expect(
+    (async () => {
+      for await (const _ of new ContinuingModel(adapter).stream({
+        ...request,
+        recovery: new RecoveryBudget(0),
+      })) {
+        /* drain */
+      }
+    })(),
+  ).rejects.toMatchObject({ state: "tool-arguments-partial" });
   expect(attempts).toBe(1);
 });
 
@@ -172,29 +216,28 @@ it("continues a text-only stream interruption and includes failed-call usage", a
   expect(recovery.used).toBe(1);
 });
 
-it.each([
-  "stream-empty",
-  "thinking-only",
-  "tool-calls-complete",
-] as const)("does not continue unsafe interrupted state %s", async (state) => {
-  let calls = 0;
-  const adapter: ModelAdapter = {
-    async *stream() {
-      calls++;
-      if (state !== "stream-empty")
-        yield { type: "thinking-delta", text: "partial" };
-      throw new ModelStreamInterruptedError(state, "stopped");
-    },
-  };
-  await expect(
-    (async () => {
-      for await (const _ of new ContinuingModel(adapter).stream(request)) {
-        // Drain.
-      }
-    })(),
-  ).rejects.toMatchObject({ state });
-  expect(calls).toBe(1);
-});
+it.each(["stream-empty", "thinking-only", "tool-calls-complete"] as const)(
+  "does not continue unsafe interrupted state %s",
+  async (state) => {
+    let calls = 0;
+    const adapter: ModelAdapter = {
+      async *stream() {
+        calls++;
+        if (state !== "stream-empty")
+          yield { type: "thinking-delta", text: "partial" };
+        throw new ModelStreamInterruptedError(state, "stopped");
+      },
+    };
+    await expect(
+      (async () => {
+        for await (const _ of new ContinuingModel(adapter).stream(request)) {
+          // Drain.
+        }
+      })(),
+    ).rejects.toMatchObject({ state });
+    expect(calls).toBe(1);
+  },
+);
 
 it("stops continuation when the shared recovery allowance is exhausted", async () => {
   let calls = 0;

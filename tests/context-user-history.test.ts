@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import type { ChatMessage, RunId, SessionId } from "@modera/contracts";
+import type { ChatMessage, RunId, SessionId } from "@pal/contracts";
 import {
   ContextManager,
   applyCheckpoint,
@@ -97,7 +97,7 @@ it("retains original users when reading a legacy checkpoint", () => {
 it("carries the previous handoff into a later compaction after reloading", async () => {
   const seen: string[] = [];
   const model = {
-    async *stream(request: import("@modera/contracts").ModelRequest) {
+    async *stream(request: import("@pal/contracts").ModelRequest) {
       seen.push(request.messages[1]!.content);
       yield {
         type: "text-delta" as const,

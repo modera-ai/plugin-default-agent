@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ChatMessage } from "@modera/contracts";
+import type { ChatMessage } from "@pal/contracts";
 import { withSystemPolicy } from "../src/system-prompt";
 
 const userMessage: ChatMessage = {
@@ -16,10 +16,22 @@ describe("withSystemPolicy", () => {
     expect(content).toContain("没有可靠名称时保留原始网址");
     expect(content).toContain("完整路径、查询参数和片段");
     expect(content).toContain("不要手动添加 favicon");
-    expect(content).toContain("用户要求原始网址、纯文本、代码或特定格式时遵循用户要求");
+    expect(content).toContain(
+      "用户要求原始网址、纯文本、代码或特定格式时遵循用户要求",
+    );
   });
   it("exposes image attachment IDs for authorized edits without mutating stored input", () => {
-    const message: ChatMessage = { ...userMessage, attachments: [{ id: "image-id", name: "reference.png", mimeType: "image/png", size: 10 }] };
+    const message: ChatMessage = {
+      ...userMessage,
+      attachments: [
+        {
+          id: "image-id",
+          name: "reference.png",
+          mimeType: "image/png",
+          size: 10,
+        },
+      ],
+    };
     const result = withSystemPolicy([message]);
     expect(result[1]?.content).toContain("attachment:<id>");
     expect(result[1]?.content).toContain('"id":"image-id"');
@@ -45,13 +57,19 @@ describe("withSystemPolicy", () => {
   it("appends only enabled capability guidance after the stable policy", () => {
     const result = withSystemPolicy(
       [userMessage],
-      [{ owner: "example", id: "read", source: "Read", text: "先读取相关文件。" }, { owner: "example", id: "test", text: "使用终端执行测试。" }],
+      [
+        {
+          owner: "example",
+          id: "read",
+          source: "Read",
+          text: "先读取相关文件。",
+        },
+        { owner: "example", id: "test", text: "使用终端执行测试。" },
+      ],
     );
     const content = result[0]?.content ?? "";
 
-    expect(content).toContain(
-      "先读取相关文件。",
-    );
+    expect(content).toContain("先读取相关文件。");
     expect(content.indexOf("## 审批与拒绝")).toBeLessThan(
       content.indexOf("补充提示词"),
     );

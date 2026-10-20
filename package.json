@@ -1,5 +1,5 @@
 {
-  "name": "@modera-plugin/default-agent",
+  "name": "@pal-plugin/default-agent",
   "version": "0.1.1",
   "type": "module",
   "description": "Default Agent runtime, independently delivered through the versioned runtime service.",
@@ -9,15 +9,18 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "modera-plugin-build .",
-    "pack": "modera-plugin pack .",
-    "release": "modera-plugin release . --publish",
-    "dev": "node tools/modera-dev.mjs"
+    "build": "pal-plugin-build .",
+    "pack": "pal-plugin pack .",
+    "release": "pal-plugin release . --publish",
+    "dev": "node tools/pal-dev.mjs",
+    "test": "node tools/test.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@modera/contracts": "file:vendor/modera-contracts-0.1.0.tgz",
-    "@modera/plugin-build": "file:vendor/modera-plugin-build-0.1.0.tgz",
-    "@modera/plugin-sdk": "file:vendor/modera-plugin-sdk-0.1.0.tgz"
+    "@pal/contracts": "file:vendor/pal-contracts-0.1.0.tgz",
+    "@pal/plugin-build": "file:vendor/pal-plugin-build-0.1.0.tgz",
+    "@pal/plugin-sdk": "file:vendor/pal-plugin-sdk-0.1.0.tgz",
+    "@pal/ui": "file:vendor/pal-ui-0.1.0.tgz"
   },
   "publishConfig": {
     "access": "public"

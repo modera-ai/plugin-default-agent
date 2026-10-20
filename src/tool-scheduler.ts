@@ -1,4 +1,4 @@
-import type { ToolCall, ToolDefinition } from "@modera/contracts";
+import type { ToolCall, ToolDefinition } from "@pal/contracts";
 
 /** Undeclared operations are barriers. Only adjacent explicitly independent reads overlap. */
 export function toolBatches(

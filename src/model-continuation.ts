@@ -1,14 +1,11 @@
-import type { ChatMessage, TokenUsage } from "@modera/contracts";
+import type { ChatMessage, TokenUsage } from "@pal/contracts";
 import { estimateContext } from "./context-manager";
 import type {
   ModelAdapter,
   ModelRequest,
   ModelStreamEvent,
 } from "./agent-loop";
-import {
-  ModelLimitError,
-  ModelStreamInterruptedError,
-} from "@modera/contracts";
+import { ModelLimitError, ModelStreamInterruptedError } from "@pal/contracts";
 import { addUsage } from "./token-usage";
 
 /** Continue text or regenerate incomplete tool calls before any complete call is emitted. */

@@ -1,5 +1,5 @@
-import type { RunDiagnostic, DiagnosticSink } from "@modera/contracts";
-export type { RunDiagnostic, DiagnosticSink } from "@modera/contracts";
+import type { RunDiagnostic, DiagnosticSink } from "@pal/contracts";
+export type { RunDiagnostic, DiagnosticSink } from "@pal/contracts";
 
 export function reportDiagnostic(
   sink: DiagnosticSink | undefined,

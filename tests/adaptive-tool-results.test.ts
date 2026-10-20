@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { AgentLoop } from "../src/agent-loop";
 import { ToolExecutor, ToolRegistry } from "@modera/agent-host";
-import type { RunId, SessionId } from "@modera/contracts";
+import type { RunId, SessionId } from "@pal/contracts";
 import { estimateContext } from "../src/context-manager";
 
 const context = {

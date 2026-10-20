@@ -1,12 +1,9 @@
 import { expect, it } from "vitest";
-import {
-  completionOrder,
-  toolBatches,
-} from "../src/tool-scheduler";
-import type { ToolDefinition } from "@modera/contracts";
+import { completionOrder, toolBatches } from "../src/tool-scheduler";
+import type { ToolDefinition } from "@pal/contracts";
 import { AgentLoop } from "../src/agent-loop";
 import { ToolExecutor, ToolRegistry } from "@modera/agent-host";
-import type { RunId, SessionId } from "@modera/contracts";
+import type { RunId, SessionId } from "@pal/contracts";
 
 const definitions: ToolDefinition[] = [
   "read",
@@ -54,9 +51,11 @@ it("respects mutation and interaction barriers and bounds batches", () => {
 });
 
 it("allows independent reads with approval groups to share a batch", () => {
-  expect(toolBatches([call("read"), call("group"), call("group")], definitions)
-    .map(batch => batch.map(call => call.name)))
-    .toEqual([["read", "group", "group"]]);
+  expect(
+    toolBatches([call("read"), call("group"), call("group")], definitions).map(
+      (batch) => batch.map((call) => call.name),
+    ),
+  ).toEqual([["read", "group", "group"]]);
 });
 
 it("starts independent work together and emits completion order with original indices", async () => {

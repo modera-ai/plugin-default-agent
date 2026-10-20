@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { AgentLoop } from "../src/agent-loop";
-import type { ModelRequest, SessionId, RunId } from "@modera/contracts";
+import type { ModelRequest, SessionId, RunId } from "@pal/contracts";
 
 it("sends edited source text to the model while leaving conversation history unchanged", async () => {
   const requests: ModelRequest[] = [];

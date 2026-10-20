@@ -7,7 +7,7 @@ import type {
   RecoveryBudgetPort,
   RunId,
   SessionId,
-} from "@modera/contracts";
+} from "@pal/contracts";
 import { AgentLoop } from "../src/agent-loop";
 
 const request = (): ModelRequest => ({
@@ -36,7 +36,8 @@ function fixture() {
         inputSchema: {},
         requiredPermissions: [],
       },
-    ],    title: () => "Probe",
+    ],
+    title: () => "Probe",
     execute,
     completedCall: () => ({
       images: [{ mimeType: "image/png", data: "YWJj" }],

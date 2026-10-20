@@ -4,7 +4,7 @@ import type {
   ContextCheckpoint,
   RunId,
   SessionId,
-} from "@modera/contracts";
+} from "@pal/contracts";
 import {
   ContextManager,
   estimateContext,
@@ -38,7 +38,7 @@ it("bounds serialized summary requests including escaped handoff text", async ()
   expect(result.checkpoint).toBeDefined();
 });
 import { AgentLoop } from "../src/agent-loop";
-import { type ModelAdapter } from "@modera/contracts";
+import { type ModelAdapter } from "@pal/contracts";
 
 const request = {
   sessionId: "s" as SessionId,

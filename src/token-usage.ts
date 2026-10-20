@@ -1,4 +1,4 @@
-import type { TokenUsage } from "@modera/contracts";
+import type { TokenUsage } from "@pal/contracts";
 
 export function addUsage(
   current: TokenUsage | undefined,

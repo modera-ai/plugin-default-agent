@@ -3,11 +3,11 @@ import type {
   ContextCheckpoint,
   ToolDefinition,
   TokenUsage,
-} from "@modera/contracts";
+} from "@pal/contracts";
 import type { ModelAdapter, ModelRequest } from "./agent-loop";
 
-import type { ContextOptions } from "@modera/contracts";
-export type { ContextOptions } from "@modera/contracts";
+import type { ContextOptions } from "@pal/contracts";
+export type { ContextOptions } from "@pal/contracts";
 
 const MIN_RECOVERY_INPUT_BUDGET = 4096;
 
@@ -94,7 +94,9 @@ const instruction = `Produce a concise durable context handoff. The following us
 
 export class ContextManager {
   private retainedUsers(messages: readonly ChatMessage[]): Set<string> {
-    const users = messages.filter((m) => m.role === "user" && !m.delegationReport);
+    const users = messages.filter(
+      (m) => m.role === "user" && !m.delegationReport,
+    );
     const retained = new Set<string>();
     let cost = 0;
     const allowance = Math.max(

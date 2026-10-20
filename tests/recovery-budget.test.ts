@@ -1,9 +1,13 @@
 import { expect, it } from "vitest";
 import { AgentLoop } from "../src/agent-loop";
-import { ModelLimitError, ModelStreamInterruptedError, type ModelAdapter } from "@modera/contracts";
+import {
+  ModelLimitError,
+  ModelStreamInterruptedError,
+  type ModelAdapter,
+} from "@pal/contracts";
 import { RecoveryBudget } from "../src/recovery-budget";
 import { ToolRegistry, ToolExecutor } from "@modera/agent-host";
-import type { RunId, SessionId } from "@modera/contracts";
+import type { RunId, SessionId } from "@pal/contracts";
 
 const request = {
   sessionId: "session" as SessionId,

@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { AgentLoop } from "../src/agent-loop";
-import type { RunId, SessionId } from "@modera/contracts";
+import type { RunId, SessionId } from "@pal/contracts";
 import type { RunDiagnostic } from "../src/run-diagnostics";
 
 const request = {

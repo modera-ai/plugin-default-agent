@@ -1,14 +1,8 @@
 import { expect, it } from "vitest";
-import type { ChatMessage, RunId, SessionId } from "@modera/contracts";
-import {
-  AgentLoop,
-  type ModelAdapter,
-} from "../src/agent-loop";
-import {
-  ContextManager,
-  estimateContext,
-} from "../src/context-manager";
-import { ModelLimitError } from "@modera/contracts";
+import type { ChatMessage, RunId, SessionId } from "@pal/contracts";
+import { AgentLoop, type ModelAdapter } from "../src/agent-loop";
+import { ContextManager, estimateContext } from "../src/context-manager";
+import { ModelLimitError } from "@pal/contracts";
 
 const summaryRequestLimitModel = (limit: number): ModelAdapter => ({
   async *stream(request) {

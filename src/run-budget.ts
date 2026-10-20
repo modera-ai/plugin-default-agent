@@ -1,5 +1,5 @@
-import type { RunLimits } from "@modera/contracts";
-export type { RunLimits } from "@modera/contracts";
+import type { RunLimits } from "@pal/contracts";
+export type { RunLimits } from "@pal/contracts";
 
 /** Limits are enforced between model rounds, never halfway through a tool transaction. */
 export class RunBudget {
