@@ -2,20 +2,14 @@ import { expect, it } from "vitest";
 import { readPluginManifest } from "@modera/plugin-host/testing";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { existsSync } from "node:fs";
 const pluginManifest = (id: string) => {
   const root =
     process.env.MODERA_PLUGINS_DIR ??
     fileURLToPath(new URL("../../", import.meta.url));
-  const pal = resolve(root, `pal-${id}`);
-  return readPluginManifest(
-    existsSync(resolve(pal, "plugin.json"))
-      ? pal
-      : resolve(root, `plugin-${id}`),
-  );
+  return readPluginManifest(resolve(root, `pal-${id}`));
 };
 
-// A plugin's manifest lives in its `plugin.json`, not in its source: the host
+// A plugin's manifest lives in its package.json.pal and its independent declaration, not in its source: the host
 // reads it before any code runs, so a test must do the same.
 const browser = pluginManifest("browser");
 const websearch = pluginManifest("websearch");

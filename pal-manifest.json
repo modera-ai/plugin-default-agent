@@ -1,17 +1,12 @@
 {
-  "apiVersion": 1,
+  "title": "Default Agent",
   "activationScope": "global",
-  "id": "pal.default-agent",
-  "name": "Default Agent",
-  "version": "0.1.1",
-  "description": "Default conversation, context management and tool orchestration runtime.",
   "locales": {
     "zh-CN": {
       "name": "Agent 运行时",
       "description": "默认会话、上下文管理与工具编排运行时。"
     }
   },
-  "main": "dist/index.cjs",
   "permissions": [],
   "provides": {
     "pal.default-agent.runtime": {
@@ -20,7 +15,10 @@
       "transport": "reference"
     }
   },
-  "contributions": ["promptPolicy", "services"],
+  "contributions": [
+    "promptPolicy",
+    "services"
+  ],
   "requiresHost": {
     "pal.plugin.promptSections": 1,
     "pal.plugin.declarations": 1

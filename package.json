@@ -2,16 +2,16 @@
   "name": "@pal-plugin/default-agent",
   "version": "0.1.1",
   "type": "module",
-  "description": "Default Agent runtime, independently delivered through the versioned runtime service.",
+  "description": "Default conversation, context management and tool orchestration runtime.",
   "files": [
-    "plugin.json",
+    "pal-manifest.json",
     "dist",
     "LICENSE"
   ],
   "scripts": {
     "build": "pal-plugin-build .",
     "pack": "pal-plugin pack .",
-    "release": "pal-plugin release . --publish",
+    "release": "npm publish",
     "dev": "node tools/pal-dev.mjs",
     "test": "node tools/test.mjs",
     "typecheck": "tsc --noEmit"
@@ -25,5 +25,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "pal": {
+    "id": "pal.default-agent",
+    "apiVersion": 1,
+    "runtime": "node",
+    "manifest": "./pal-manifest.json"
+  },
+  "exports": "./dist/index.cjs"
 }
