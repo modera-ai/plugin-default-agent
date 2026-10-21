@@ -44,7 +44,7 @@ describe("withSystemPolicy", () => {
     expect(result).toHaveLength(2);
     expect(result[1]).toBe(userMessage);
     expect(result[0]).toMatchObject({
-      id: "modera-system-policy",
+      id: "pal.default-agent.system-policy",
       role: "system",
       createdAt: new Date(0).toISOString(),
     });

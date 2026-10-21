@@ -15,15 +15,15 @@
   "permissions": [],
   "provides": {
     "pal.default-agent.runtime": {
-      "contract": "modera.agent.runtime",
+      "contract": "pal.agent.runtime",
       "apiVersion": 1,
       "transport": "reference"
     }
   },
   "contributions": ["promptPolicy", "services"],
   "requiresHost": {
-    "plugin.promptSections": 1,
-    "plugin.declarations": 1
+    "pal.plugin.promptSections": 1,
+    "pal.plugin.declarations": 1
   },
   "declarations": {}
 }

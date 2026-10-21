@@ -115,7 +115,7 @@ export class AgentLoop implements AgentRuntime {
       const policyBlocks: PromptDocumentBlock[] = [
         {
           owner: "pal.default-agent",
-          id: "system-policy",
+          id: "pal.default-agent.system-policy",
           kind: "base",
           text: BASE_SYSTEM_POLICY,
         },

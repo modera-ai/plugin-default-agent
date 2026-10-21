@@ -50,7 +50,7 @@ export function withSystemPolicy(
     .join("\n\n");
   return [
     {
-      id: "modera-system-policy",
+      id: "pal.default-agent.system-policy",
       role: "system",
       createdAt: new Date(0).toISOString(),
       content:

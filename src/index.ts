@@ -7,7 +7,10 @@ import { AgentLoop } from "./agent-loop";
 import { BASE_SYSTEM_POLICY } from "./system-prompt";
 
 export const activate: PluginModule["activate"] = async (host) => ({
-  promptPolicy: { id: "system-policy", text: BASE_SYSTEM_POLICY },
+  promptPolicy: {
+    id: "pal.default-agent.system-policy",
+    text: BASE_SYSTEM_POLICY,
+  },
   services: {
     "pal.default-agent.runtime": {
       ...AGENT_RUNTIME_CONTRACT,
