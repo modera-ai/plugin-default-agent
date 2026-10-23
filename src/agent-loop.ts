@@ -261,6 +261,20 @@ export class AgentLoop implements AgentRuntime {
             else usage = addUsage(usage, event.usage);
             break;
           } else {
+            if (event.type === "tool-input-delta") {
+              const preview = await this.#executor?.observeToolInput?.(event, {
+                sessionId: request.sessionId,
+                runId: request.runId,
+                signal: request.signal,
+                toolCallId: event.id,
+                ...(request.projectId ? { projectId: request.projectId } : {}),
+                ...(request.workspacePath
+                  ? { workspacePath: request.workspacePath }
+                  : {}),
+              });
+              yield preview ? { ...event, preview } : event;
+              continue;
+            }
             if (event.type === "message-phase") phase = event.phase;
             if (event.type === "text-delta") {
               content += event.text;
@@ -408,6 +422,12 @@ export class AgentLoop implements AgentRuntime {
               sessionId: request.sessionId,
               runId: request.runId,
               signal: request.signal,
+              ...(request.reportToolProgress
+                ? {
+                    reportProgress: (message: string) =>
+                      request.reportToolProgress!(call.id, message),
+                  }
+                : {}),
               ...(userMessage
                 ? {
                     userMessage: {

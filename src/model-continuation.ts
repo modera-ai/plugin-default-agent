@@ -27,6 +27,7 @@ export class ContinuingModel implements ModelAdapter {
       let pending = "";
       let filtering = attempt > 0;
       let toolSeen = false;
+      const partialCalls = new Map<string, string>();
       const candidates = [
         ...(prefix.length >= 32 ? [prefix] : []),
         ...(prefix.length >= 128 ? [prefix.slice(-128)] : []),
@@ -105,6 +106,8 @@ export class ContinuingModel implements ModelAdapter {
             yield { type: "completed", ...(usage ? { usage } : {}) };
             return;
           } else {
+            if (event.type === "tool-input-delta" && !event.reset)
+              partialCalls.set(event.id, event.name);
             if (event.type === "tool-call") toolSeen = true;
             yield event;
           }
@@ -153,6 +156,8 @@ export class ContinuingModel implements ModelAdapter {
         )
           throw terminalError;
         regenerateTool = incompleteTool;
+        for (const [id, name] of partialCalls)
+          yield { type: "tool-input-delta", id, name, delta: "", reset: true };
       }
     }
   }

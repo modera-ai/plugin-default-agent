@@ -71,6 +71,38 @@ it.each(["", "Preparing the requested question. "])(
   },
 );
 
+it("clears presentation-only input from an interrupted attempt before retry", async () => {
+  let attempt = 0;
+  const adapter: ModelAdapter = {
+    async *stream() {
+      if (!attempt++) {
+        yield {
+          type: "tool-input-delta",
+          id: "old",
+          name: "filesystem_create",
+          delta: '{"path":"old.ts"',
+        } as const;
+        throw new ModelStreamInterruptedError(
+          "tool-arguments-partial",
+          "truncated",
+        );
+      }
+      yield { type: "text-delta", text: "Recovered" } as const;
+      yield { type: "completed" } as const;
+    },
+  };
+  const events: ModelStreamEvent[] = [];
+  for await (const event of new ContinuingModel(adapter).stream(request))
+    events.push(event);
+  expect(events).toContainEqual({
+    type: "tool-input-delta",
+    id: "old",
+    name: "filesystem_create",
+    delta: "",
+    reset: true,
+  });
+});
+
 it("does not regenerate partial tool arguments when shared recovery is exhausted", async () => {
   let attempts = 0;
   const adapter: ModelAdapter = {
